@@ -1,0 +1,12 @@
+deploy-prod:
+  stage: deploy
+  variables:
+    DIR_DOCKER: "/dados/metabase/metabase_docker"
+    CMD1_PROD: "cd $DIR_DOCKER; ./run_prod.sh ;"
+  script:
+    - apt-get install -y sshpass
+    - sshpass -p $SSH_PASSWORD rsync -avzhe --progress --delete -e "ssh -o StrictHostKeyChecking=no" --chmod=Dg=rwx,o=r,Fg=rw,o=r --exclude '.git*' --exclude '.md'  * $SSH_USER@$SSH_SERVER:$DIR_DOCKER
+    - sshpass -p $SSH_PASSWORD ssh -oStrictHostKeyChecking=no $SSH_USER@$SSH_SERVER $CMD1_PROD
+
+  only:
+    - tags

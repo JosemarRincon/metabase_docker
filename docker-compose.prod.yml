@@ -1,0 +1,73 @@
+version: "3.7"
+# Declaração dos serviços.
+services:
+  # Configuração do container do Postgres.
+  metabase-prod-db:
+    # Nome da imagem a ser buscada.
+    image: postgres
+    container_name: metabase-prod-db
+    # Permite escolher reiniciar caso o serviço pare.
+    restart: always
+    # Especificação do expose das portas.
+    ports:
+      - 5432:5432
+    # Criação das váriaveis de ambiente.
+    environment:
+      # Senha para o banco.
+      POSTGRES_PASSWORD: postgres
+      # Usuário
+      POSTGRES_USER: metabase
+      #Nome do Banco
+      POSTGRES_DB: metabase
+    # Indicação do diretório para volume.  
+    volumes:
+      # Use um diretório que já esteja criado.
+      - ${VOLUME_HOME}/pgdata:/var/lib/postgresql/data
+    logging:
+            options:
+                max-size: 5m
+                max-file: "3"
+
+
+ # Configuração do container do Metabase.
+  metabase-prod:
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    #   network: host
+    # Nome da imagem a ser buscada.
+    image: metabase/metabase:v0.40.3
+    logging:
+      options:
+          max-size: "5m"
+          max-file: "2"
+    container_name: metabase-prod
+
+    # Permite escolher reiniciar caso o serviço pare.
+    restart: always
+    # Especificação do expose das portas.
+    ports:
+      - 3002:3000
+    # Indicação do diretório para volume.  
+    # volumes:
+    #   - $VOLUME_HOME/plugins:/plugins
+    # Criação das váriaveis de ambiente.
+    environment:
+      # Nome do tipo de Banco.
+      MB_DB_TYPE: postgres   
+      # Nome do Banco.
+      MB_DB_DBNAME: metabase  
+      # Porta de Conexão.
+      MB_DB_PORT: 5432  
+      #  Nome do Usuário a se conectar no Banco.
+      MB_DB_USER: metabase  
+      # Nome da senha do Usuário.
+      MB_DB_PASS: postgres  
+      # Nome do Host de conexão.
+      MB_DB_HOST: metabase-prod-db
+      JAVA_OPTS: -Xmx4g
+    # Especificação de dependência.  
+    depends_on:
+      - metabase-prod-db    # Especificação do contianer a ser linkado.  
+    links:
+      - metabase-prod-db

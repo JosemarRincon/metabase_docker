@@ -1,0 +1,26 @@
+version: "3.7"
+# Declaração dos serviços.
+services:
+ # Configuração do container do Metabase.
+  metabase-desenv:
+    # Nome da imagem a ser buscada.
+    image: metabase/metabase:v0.40.3
+    logging:
+            options:
+                max-size: "5m"
+                max-file: "2"
+    container_name: metabase-desenv
+
+    # Permite escolher reiniciar caso o serviço pare.
+    restart: always
+    # Especificação do expose das portas.
+    ports:
+      - 3002:3000
+    # Indicação do diretório para volume.  
+    volumes:
+    # Use um diretório que já esteja criado.
+      - $VOLUME_HOME/metabase-data:/metabase-data
+    # Criação das váriaveis de ambiente.
+    environment:
+      # Nome do arquivo dos metadados.
+      MB_DB_FILE: /metabase-data/metabase.db
